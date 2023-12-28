@@ -5,6 +5,9 @@ package main
 import (
 	"fmt"
 	"github.com/gocolly/colly"
+	"encoding/csv"
+	"log"
+	"os"
 )
 
 func main() {
