@@ -36,19 +36,17 @@ func main() {
 	)
 
 	// Create another collector that is used to scrape details
-	detailCollector := c.Clone()
+	//detailCollector := c.Clone()
 
 	spreads := make([]Spread, 0, 200)
 
 	c.OnHtml("div[ScoreCell nfl ScoreCell--md ScoreCell--pre]", func(h *colly.HTMLElement)) {
 		fmt.Println(h.Text)
 
-		h.Request.Visit(link)
 	}
 
 	//c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
 
 	c.Visit("https://www.espn.com/nfl/scoreboard")
-
 
 }
