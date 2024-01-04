@@ -4,49 +4,52 @@ package main
 
 import (
 	"fmt"
-	"github.com/gocolly/colly/v2"
-	"encoding/csv"
-	"log"
+	"github.com/gocolly/colly"
 	"os"
-	"strings"
+	"encoding/json"
 )
 
 type nfl_odds struct {
-	game_date string
-	home_team string
-	away_team string
-	game_time string
-	game_odds string
+	home_team string `json:"home_team"`
+	away_team string `json:"away_team"`
+	game_odds string `json:"game_odds"`
 }
 
 func main() {
-	fName := "nfl_odds.csv"
-	file, err := os.Create(fName)
-	if err != nil {
-		log.Fatalf("Cannot create file %q: %s\n", fName, err)
-		return
-	}
-	defer file.Close()
 
 	c := colly.NewCollector(
 		//Set allowable domains to only espn.com and www.espn.com
 		colly.AllowedDomains("espn.com", "www.espn.com"),
-		//Cache responses to only perform one download of pages
-		colly.CacheDir("./espn_cache"),
 	)
 
-	// Create another collector that is used to scrape details
-	//detailCollector := c.Clone()
+	//create a slice to store results in once scraped
+	var nfl_odd []nfl_odds
 
-	spreads := make([]Spread, 0, 200)
+	c.OnHTML("div.ScoreCell__Link__Event__Detail section.Card.gameModules.gameModules--mobile", func(h *colly.HTMLElement) {
+		fmt.Println("Raw HTML content", h.Text)
+		//use declared struct to map scraping data to fields
+		nfl_odds := nfl_odds{
+			home_team: h.ChildText("li.ScoreCell__Item.ScoreCell__Item--home"), 
+			away_team: h.ChildText("li.ScoreCell__Item.ScoreCell__Item--away"), 
+			game_odds: h.ChildText("div.ScoreCell__Odds"),
+		}
 
-	c.OnHtml("div[ScoreCell nfl ScoreCell--md ScoreCell--pre]", func(h *colly.HTMLElement)) {
-		fmt.Println(h.Text)
+		nfl_odd = append(nfl_odd, nfl_odds)
+	})
 
-	}
+	c.OnRequest(func(r *colly.Request) {
+		fmt.Println(r.URL.String())
+	})
 
-	//c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
+	c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
 
 	c.Visit("https://www.espn.com/nfl/scoreboard")
+	content, err := json.Marshal(nfl_odd)
 
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	//create json file from scraped data
+	os.WriteFile("espn_nfl_odds.json", content, 0644)
 }
