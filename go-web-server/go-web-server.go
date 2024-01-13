@@ -26,9 +26,17 @@ func main() {
 				{Title: "The Thing", Director: "John Carpenter"},
 			},
 		}
-		tmpl.Execute((w, films))
+		tmpl.Execute(w, films)
 	}
+	h2 := func(w http.ResponseWriter, r *http.Request) {
+		title := r.PostFormValue("title")
+		director := r.PostFormValue("director")
+		fmt.Print(title)
+		fmt.Print(director)
+	}
+
 	http.HandleFunc("/", h1)
+	http.HandleFunc("/add-film/", h2)
 
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
