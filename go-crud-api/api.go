@@ -4,9 +4,11 @@ package main
 
 import (
 	"encoding/json"
-	"net/http"
-	"log"
 	"fmt"
+	"log"
+	"net/http"
+	"strconv"
+
 	"github.com/gorilla/mux"
 )
 
@@ -27,6 +29,7 @@ func (s *APIServer) Run() {
 
 	router.HandleFunc("/account", makeHTTPHandleFunc(s.handleAccount))
 	router.HandleFunc("/account/{id}", makeHTTPHandleFunc(s.handleGetAccountByID))
+	router.HandleFunc("/transfer", makeHTTPHandleFunc(s.handleTransfer))
 
 	log.Println("JSON API server running on port: ", s.listenAddr)
 
@@ -103,7 +106,17 @@ func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *APIServer) handleTransfer(w http.ResponseWriter, r *http.Request) error {
-	return nil
+	transferReq := new(TransferRequest)
+	if err := json.NewDecoder(w).Decode(transferReq); err != nil {
+		return err
+	}
+	defer r.Body.Close()
+
+	return WriteJSON(w, http.StatusOK, transferReq)
+}
+
+func TransferRequest(TransferRequest invalid type) {
+	panic("unimplemented")
 }
 
 func WriteJSON(w http.ResponseWriter, status int, v any) error {
