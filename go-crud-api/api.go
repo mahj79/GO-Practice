@@ -107,16 +107,12 @@ func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) 
 
 func (s *APIServer) handleTransfer(w http.ResponseWriter, r *http.Request) error {
 	transferReq := new(TransferRequest)
-	if err := json.NewDecoder(w).Decode(transferReq); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(transferReq); err != nil {
 		return err
 	}
 	defer r.Body.Close()
 
 	return WriteJSON(w, http.StatusOK, transferReq)
-}
-
-func TransferRequest(TransferRequest invalid type) {
-	panic("unimplemented")
 }
 
 func WriteJSON(w http.ResponseWriter, status int, v any) error {
