@@ -14,13 +14,13 @@ import (
 
 type APIServer struct {
 	listenAddr string
-	store Storage
+	store      Storage
 }
 
 func NewAPIServer(listenAddr string, store Storage) *APIServer {
 	return &APIServer{
 		listenAddr: listenAddr,
-		store: store,
+		store:      store,
 	}
 }
 
@@ -28,7 +28,7 @@ func (s *APIServer) Run() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/account", makeHTTPHandleFunc(s.handleAccount))
-	router.HandleFunc("/account/{id}", makeHTTPHandleFunc(s.handleGetAccountByID))
+	router.HandleFunc("/account/{id}", withJWTAuth(makeHTTPHandleFunc(s.handleGetAccountByID)))
 	router.HandleFunc("/transfer", makeHTTPHandleFunc(s.handleTransfer))
 
 	log.Println("JSON API server running on port: ", s.listenAddr)
@@ -45,7 +45,6 @@ func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error 
 		return s.handleCreateAccount(w, r)
 	}
 
-
 	return fmt.Errorf("method not allowed %s", r.Method)
 }
 
@@ -57,7 +56,6 @@ func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) err
 
 	return WriteJSON(w, http.StatusOK, accounts)
 }
-
 
 func (s *APIServer) handleGetAccountByID(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
@@ -120,6 +118,16 @@ func WriteJSON(w http.ResponseWriter, status int, v any) error {
 	w.WriteHeader(status)
 	return json.NewEncoder(w).Encode(v)
 }
+
+func withJWTAuth(handlerFunc http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("calling JWT auth middleware")
+
+		handlerFunc(w, r)
+	}
+}
+
+func validateJWT()
 
 type apiFunc func(http.ResponseWriter, *http.Request) error
 
