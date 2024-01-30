@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-
+	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/mux"
 )
 
@@ -127,7 +127,16 @@ func withJWTAuth(handlerFunc http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func validateJWT()
+
+func validateJWT(tokenString string) (*jwt.Token, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); |ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return hmacSampleSecret, nil
+	})
+}
 
 type apiFunc func(http.ResponseWriter, *http.Request) error
 
