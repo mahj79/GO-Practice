@@ -27,11 +27,12 @@ type Account struct {
 	FirstName string `json:"firstName"`
 	LastName string `json:"lastName"`
 	Number int64 `json:"number"`
+	EncryptedPassword string `json:"-"`
 	Balance int64 `json:"balance"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-func NewAccount (FirstName, LastName string) *Account {
+func NewAccount (FirstName, LastName, password string) *Account {
 	return &Account {
 		FirstName: FirstName,
 		LastName: LastName,

@@ -40,7 +40,12 @@ func (s *APIServer) Run() {
 }
 
 func (s *APIServer) handleLogin(w http.ResponseWriter, r *http.Request) error {
-
+	var req LoginRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil{
+		return err
+	}
+	
+	return WriteJSON(w, http.StatusOK, req)
 }
 
 func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error {
