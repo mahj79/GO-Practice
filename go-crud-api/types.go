@@ -5,6 +5,7 @@ package main
 import (
 	"math/rand"
 	"time"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginRequest struct {
@@ -34,7 +35,7 @@ type Account struct {
 }
 
 func NewAccount (FirstName, LastName, password string) (*Account, error) {
-	encpw, err := bycrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	encpw, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}
