@@ -39,7 +39,7 @@ func (s *APIServer) Run() {
 	http.ListenAndServe(s.listenAddr, router)
 }
 
-//new account => 1649657
+//new new account => 334354
 func (s *APIServer) handleLogin(w http.ResponseWriter, r *http.Request) error {
 	if r.Method != "POST" {
 		return fmt.Errorf("method not allowed %s", r.Method)
@@ -52,10 +52,13 @@ func (s *APIServer) handleLogin(w http.ResponseWriter, r *http.Request) error {
 
 	acc, err := s.store.GetAccountByNumber(int(req.Number)) 
 	if err != nil {
-		return err
+		return err 
 	}
 
-	fmt.Printf("%+v\n", acc)
+	token, err := createJWT(acc)
+	if err != nil {
+		return err
+	}
 	
 	return WriteJSON(w, http.StatusOK, req)
 }

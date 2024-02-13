@@ -8,6 +8,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type LoginResponse struct {
+	
+}
+
 type LoginRequest struct {
 	Number int64 `json:"number"`
 	Password string `json:"password"`
