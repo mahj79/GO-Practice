@@ -39,28 +39,33 @@ func (s *APIServer) Run() {
 	http.ListenAndServe(s.listenAddr, router)
 }
 
-//new new account => 334354
+// new new account => 334354
 func (s *APIServer) handleLogin(w http.ResponseWriter, r *http.Request) error {
 	if r.Method != "POST" {
 		return fmt.Errorf("method not allowed %s", r.Method)
 	}
-	
+
 	var req LoginRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil{
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return err
 	}
 
-	acc, err := s.store.GetAccountByNumber(int(req.Number)) 
+	acc, err := s.store.GetAccountByNumber(int(req.Number))
 	if err != nil {
-		return err 
+		return err
 	}
 
 	token, err := createJWT(acc)
 	if err != nil {
 		return err
 	}
-	
-	return WriteJSON(w, http.StatusOK, req)
+
+	resp := LoginResponse {
+		Token:  token,
+		Number: acc.Number,
+	}
+
+	return WriteJSON(w, http.StatusOK, resp)
 }
 
 func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error {
@@ -151,7 +156,7 @@ func WriteJSON(w http.ResponseWriter, status int, v any) error {
 
 func createJWT(account *Account) (string, error) {
 	claims := &jwt.MapClaims{
-		"expiresAt": 15000,
+		"expiresAt":     15000,
 		"accountNumber": account.Number,
 	}
 
@@ -159,7 +164,7 @@ func createJWT(account *Account) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	return token.SignedString([]byte(secret))
-	
+
 }
 
 func permissionDenied(w http.ResponseWriter) {
